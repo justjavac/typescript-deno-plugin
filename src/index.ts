@@ -67,6 +67,23 @@ export = function init({ typescript }: { typescript: typeof ts_module }) {
         return { ...OPTIONS, ...projectSetting };
       };
 
+      const getScriptFileNames = info.languageServiceHost.getScriptFileNames!;
+      info.languageServiceHost.getScriptFileNames = () => {
+        const scriptFileNames = getScriptFileNames.call(
+          info.languageServiceHost
+        );
+
+        const denoDir = getDenoDir();
+        const denoDtsPath = path.resolve(denoDir, "lib.deno_runtime.d.ts");
+
+        if (!fs.existsSync(denoDtsPath)) {
+          // TODO: generate or download lib.deno_runtime.d.ts
+        }
+
+        scriptFileNames.push(denoDtsPath);
+        return scriptFileNames;
+      };
+
       return info.languageService;
     }
   };
