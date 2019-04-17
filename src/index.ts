@@ -106,14 +106,18 @@ interface IDenoModuleHeaders {
  * If moduleName is not found, recursively search for headers and "redirect_to" property.
  */
 function fallbackHeader(modulePath: string): string {
-  const validPath = modulePath.endsWith(".ts") ? modulePath : `${modulePath}.ts`;
+  const validPath = modulePath.endsWith(".ts")
+    ? modulePath
+    : `${modulePath}.ts`;
   if (fs.existsSync(validPath)) {
     return modulePath;
   }
 
   const headersPath = `${validPath}.headers.json`;
   if (fs.existsSync(headersPath)) {
-    const headers: IDenoModuleHeaders = JSON.parse(fs.readFileSync(headersPath, { encoding: "utf-8" }));
+    const headers: IDenoModuleHeaders = JSON.parse(
+      fs.readFileSync(headersPath, { encoding: "utf-8" })
+    );
     logger.info(`redirect "${modulePath}" to "${headers.redirect_to}".`);
     // TODO: avoid Circular
     return convertRemoteToLocalCache(stripExtNameDotTs(headers.redirect_to));
