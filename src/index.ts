@@ -9,6 +9,22 @@ import { Logger } from "./logger";
 
 let logger: Logger;
 
+// see https://github.com/denoland/deno/blob/2debbdacb935cfe1eb7bb8d1f40a5063b339d90b/js/compiler.ts#L159-L170
+const OPTIONS: ts_module.CompilerOptions = {
+  allowJs: true,
+  checkJs: true,
+  esModuleInterop: true,
+  module: ts_module.ModuleKind.ESNext,
+  moduleResolution: ts_module.ModuleResolutionKind.NodeJs,
+  outDir: "$deno$",
+  resolveJsonModule: true,
+  sourceMap: true,
+  removeComments: true,
+  target: ts_module.ScriptTarget.ESNext,
+  noEmit: true,
+  typeRoots: []
+};
+
 export = function init({ typescript }: { typescript: typeof ts_module }) {
   // Make sure Deno imports the correct version of TS
   mockRequire("typescript", typescript);
@@ -43,6 +59,11 @@ export = function init({ typescript }: { typescript: typeof ts_module }) {
           reusedNames,
           redirectedReference
         );
+      };
+
+      const projectSetting = info.project.getCompilationSettings();
+      info.languageServiceHost.getCompilationSettings = () => {
+        return { ...OPTIONS, ...projectSetting };
       };
 
       return info.languageService;
