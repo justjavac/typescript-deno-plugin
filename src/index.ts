@@ -6,6 +6,7 @@ import * as mockRequire from "mock-require";
 import * as ts_module from "typescript/lib/tsserverlibrary";
 
 import { Logger } from "./logger";
+import { getDenoDir } from "./shared";
 
 let logger: Logger;
 
@@ -16,12 +17,12 @@ const OPTIONS: ts_module.CompilerOptions = {
   esModuleInterop: true,
   module: ts_module.ModuleKind.ESNext,
   moduleResolution: ts_module.ModuleResolutionKind.NodeJs,
+  noEmit: true,
   outDir: "$deno$",
+  removeComments: true,
   resolveJsonModule: true,
   sourceMap: true,
-  removeComments: true,
   target: ts_module.ScriptTarget.ESNext,
-  noEmit: true,
   typeRoots: []
 };
 
@@ -87,28 +88,7 @@ function convertRemoteToLocalCache(moduleName: string): string {
     return moduleName;
   }
 
-  // ref https://deno.land/manual.html
-  // On Linux/Redox: $XDG_CACHE_HOME/deno or $HOME/.cache/deno
-  // On Windows: %LOCALAPPDATA%/deno (%LOCALAPPDATA% = FOLDERID_LocalAppData)
-  // On macOS: $HOME/Library/Caches/deno
-  // If something fails, it falls back to $HOME/.deno
-  let denoDir = process.env.DENO_DIR;
-  if (denoDir === undefined) {
-    switch (process.platform) {
-      case "win32":
-        denoDir = `${process.env.LOCALAPPDATA}\\deno`;
-        break;
-      case "darwin":
-        denoDir = `${process.env.HOME}/Library/Caches/deno`;
-        break;
-      case "linux":
-        denoDir = `${process.env.HOME}/.cache/deno`;
-        break;
-      default:
-        denoDir = `${process.env.HOME}/.deno`;
-    }
-  }
-
+  const denoDir = getDenoDir();
   // "https://deno.land/x/std/log/mod" to "$DENO_DIR/deps/https/deno.land/x/std/log/mod" (no ".ts" because stripped)
   const name = path.join(denoDir, "deps", moduleName.replace("://", "/"));
   const redirectedName = fallbackHeader(name);
@@ -135,6 +115,7 @@ function fallbackHeader(modulePath: string): string {
   if (fs.existsSync(headersPath)) {
     const headers: IDenoModuleHeaders = JSON.parse(fs.readFileSync(headersPath, { encoding: "utf-8" }));
     logger.info(`redirect "${modulePath}" to "${headers.redirect_to}".`);
+    // TODO: avoid Circular
     return convertRemoteToLocalCache(stripExtNameDotTs(headers.redirect_to));
   }
   return modulePath;
