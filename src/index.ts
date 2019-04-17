@@ -90,7 +90,7 @@ function convertRemoteToLocalCache(moduleName: string): string {
 
   const denoDir = getDenoDir();
   // "https://deno.land/x/std/log/mod" to "$DENO_DIR/deps/https/deno.land/x/std/log/mod" (no ".ts" because stripped)
-  const name = path.join(denoDir, "deps", moduleName.replace("://", "/"));
+  const name = path.resolve(denoDir, "deps", moduleName.replace("://", "/"));
   const redirectedName = fallbackHeader(name);
   logger.info(`convert "${moduleName}" to "${redirectedName}".`);
 
