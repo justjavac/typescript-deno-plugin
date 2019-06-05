@@ -2,9 +2,9 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import merge from "merge-deep";
 import mockRequire from "mock-require";
 import ts_module from "typescript/lib/tsserverlibrary";
-import merge from "merge-deep";
 
 import { Logger } from "./logger";
 import { getDenoDir } from "./shared";
