@@ -261,7 +261,7 @@ module.exports = function init(
           1103,
           // TS2691: An import path cannot end with a '.ts' extension. Consider
           // importing 'bad-module' instead.
-          //!! 2691,
+          // !! 2691,
           // TS5009: Cannot find the common subdirectory path for the input files.
           5009,
           // TS5055: Cannot write file

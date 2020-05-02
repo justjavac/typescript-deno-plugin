@@ -6,7 +6,6 @@
   "scripts": {
     "prepublish": "tsc",
     "compile": "tsc",
-    "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "types": "deno types > lib/lib.deno_runtime.d.ts"
   },
   "keywords": [
@@ -27,7 +26,6 @@
   "devDependencies": {
     "@types/mock-require": "^2.0.0",
     "@types/node": "^13.13.4",
-    "tslint": "^6.1.2",
     "typescript": "^3.8.3"
   }
 }

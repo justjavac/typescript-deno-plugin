@@ -31,7 +31,7 @@ export const remoteModuleResolver: IModuleResolver = {
       return;
     }
 
-    let redirect = meta.headers["location"];
+    let redirect = meta.headers.location;
 
     if (redirect) {
       redirect = isHttpURL(redirect) // eg: https://redirect.com/path/to/redirect
