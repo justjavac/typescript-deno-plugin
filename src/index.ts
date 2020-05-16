@@ -7,6 +7,9 @@ import merge from "merge-deep";
 import ts_module, {
   ResolvedModuleFull,
   CompilerOptions,
+  UserPreferences,
+  FormatCodeSettings,
+  CodeFixAction,
 } from "typescript/lib/tsserverlibrary";
 import { parseFromString, resolve, ImportMaps } from "import-maps";
 
@@ -404,12 +407,37 @@ module.exports = function init(
         });
       }
 
+      // TODO(justjavac): maybe also `getCombinedCodeFix`
+      function getCodeFixesAtPosition(
+        fileName: string,
+        start: number,
+        end: number,
+        errorCodes: readonly number[],
+        formatOptions: FormatCodeSettings,
+        preferences: UserPreferences,
+      ): readonly CodeFixAction[] {
+        const codeFixActions = tsLs.getCodeFixesAtPosition(
+          fileName,
+          start,
+          end,
+          errorCodes,
+          formatOptions,
+          preferences,
+        );
+
+        // TODO(justjavac)
+        logger.info(`codeFixActions:\n${JSON.stringify(codeFixActions, null, '  ')}`)
+
+        return codeFixActions;
+      }
+
       const proxy: ts_module.LanguageService = Object.assign(
         Object.create(null),
         tsLs,
         {
           getCompletionEntryDetails,
           getSemanticDiagnostics,
+          getCodeFixesAtPosition,
         },
       );
 
