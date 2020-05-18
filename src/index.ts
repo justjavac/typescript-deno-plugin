@@ -24,6 +24,8 @@ import {
 
 import { universalModuleResolver } from "./module_resolver/universal_module_resolver";
 import { HashMeta } from "./module_resolver/hash_meta";
+import { errorCodeToFixes } from "./codefix_provider";
+import './code_fixes'
 
 let logger: Logger;
 let pluginInfo: ts_module.server.PluginCreateInfo;
@@ -425,8 +427,12 @@ module.exports = function init(
           preferences,
         );
 
-        // TODO(justjavac)
-        logger.info(`codeFixActions:\n${JSON.stringify(codeFixActions, null, '  ')}`)
+        for (const errorCode of errorCodes) {
+          const fixes = errorCodeToFixes.get(errorCode)!
+          for (const fix of fixes) {
+            fix.replaceCodeActions(codeFixActions);
+          }
+        }
 
         return codeFixActions;
       }
@@ -506,13 +512,13 @@ function parseModuleName(
         if (meta && meta.url) {
           scriptURL = meta.url;
         } else {
-          scriptURL = new URL("file:///" + path.dirname(containingFile) + "/")
+          scriptURL = new URL("file:///" + path.dirname(containingFile) + "/");
         }
       } else {
-        scriptURL = new URL("file:///" + path.dirname(containingFile) + "/")
+        scriptURL = new URL("file:///" + path.dirname(containingFile) + "/");
       }
 
-      logger && logger.info(`baseUrl: ${scriptURL}`)
+      logger && logger.info(`baseUrl: ${scriptURL}`);
 
       const moduleUrl = resolve(
         moduleName,
@@ -521,11 +527,11 @@ function parseModuleName(
       );
 
       if (moduleUrl.protocol === "file:") {
-        return fileURLToPath(moduleUrl.href)
+        return fileURLToPath(moduleUrl.href);
       }
 
       if (moduleUrl.protocol === "http:" || moduleUrl.protocol === "https:") {
-        return moduleUrl.href
+        return moduleUrl.href;
       }
 
       // just support protocol: file, http, https
