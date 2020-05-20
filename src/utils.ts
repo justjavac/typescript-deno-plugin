@@ -57,7 +57,7 @@ export function getDenoDtsPath(
     return file;
   }
 
-  file = path.resolve(getPluginPath(tsLsHost), "lib", specifier);
+  file = path.resolve(getPluginPath(), "lib", specifier);
   if (fs.existsSync(file)) {
     return file;
   }
