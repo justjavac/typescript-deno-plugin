@@ -43,14 +43,8 @@ export function isInDenoDir(filepath: string): boolean {
   return filepath.startsWith(denoDir);
 }
 
-export function getPluginPath(
-  tsLsHost: ts.LanguageServiceHost,
-): string {
-  return path.resolve(
-    tsLsHost.getCurrentDirectory(),
-    "node_modules",
-    "typescript-deno-plugin",
-  );
+export function getPluginPath(): string {
+  return path.resolve(__dirname, "..");
 }
 
 export function getDenoDtsPath(
