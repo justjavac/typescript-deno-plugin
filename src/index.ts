@@ -24,8 +24,9 @@ import {
 
 import { universalModuleResolver } from "./module_resolver/universal_module_resolver";
 import { HashMeta } from "./module_resolver/hash_meta";
+import { getImportModules } from "./deno_modules";
 import { errorCodeToFixes } from "./codefix_provider";
-import './code_fixes'
+import "./code_fixes";
 
 let logger: Logger;
 let pluginInfo: ts_module.server.PluginCreateInfo;
@@ -153,6 +154,27 @@ module.exports = function init(
             config.importmap,
           );
 
+          const content = typescript.sys.readFile(containingFile, "utf8");
+
+          // handle @deno-types
+          if (content && content.indexOf("// @deno-types=") >= 0) {
+            const sourceFile = typescript.createSourceFile(
+              containingFile,
+              content,
+              typescript.ScriptTarget.ESNext,
+              true,
+            );
+
+            const modules = getImportModules(sourceFile);
+
+            for (const m of modules) {
+              if (m.hint) {
+                const index = moduleNames.findIndex((v) => v === m.moduleName);
+                moduleNames[index] = m.hint.text;
+              }
+            }
+          }
+
           // try resolve typeReferenceDirectives
           for (let moduleName of moduleNames) {
             const parsedModuleName = parseModuleName(
@@ -244,7 +266,7 @@ module.exports = function init(
           info.languageServiceHost,
         );
 
-        const scriptFileNames = [... originalScriptFileNames];
+        const scriptFileNames = [...originalScriptFileNames];
 
         const libDenoDts = getDenoDtsPath("lib.deno.d.ts");
         if (!libDenoDts) {
@@ -387,8 +409,14 @@ module.exports = function init(
 
             if (isHttpURL(parsedModuleName)) {
               d.code = 10002; // RemoteModuleNotExist
-              d.messageText =
-                `The remote module "${moduleName}" has not been cached locally`;
+              if (moduleName === parsedModuleName) {
+                d.messageText =
+                  `The remote module has not been cached locally. Try \`deno cache ${parsedModuleName}\` if it exists`;
+              } else {
+                d.messageText =
+                  `The remote module "${moduleName}" has not been cached locally. Try \`deno cache ${parsedModuleName}\` if it exists`;
+              }
+
               return d;
             }
 
@@ -430,7 +458,7 @@ module.exports = function init(
         );
 
         for (const errorCode of errorCodes) {
-          const fixes = errorCodeToFixes.get(errorCode)!
+          const fixes = errorCodeToFixes.get(errorCode);
           if (fixes == null) continue;
 
           for (const fix of fixes) {
