@@ -1,5 +1,9 @@
 # typescript-deno-plugin
 
+**MOVE TO <https://github.com/denoland/vscode_deno/tree/master/typescript-deno-plugin>**
+
+-------------------
+
 > Deno language service plugin for TypeScript.
 
 [![npm package](https://nodei.co/npm/typescript-deno-plugin.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/typescript-deno-plugin/)
