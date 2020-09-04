@@ -1,8 +1,8 @@
+# **MOVE TO <https://github.com/denoland/vscode_deno/tree/master/typescript-deno-plugin>**
+
+-----------
+
 # typescript-deno-plugin
-
-**MOVE TO <https://github.com/denoland/vscode_deno/tree/master/typescript-deno-plugin>**
-
--------------------
 
 > Deno language service plugin for TypeScript.
 
